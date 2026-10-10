@@ -1,0 +1,34 @@
+# syntax=docker/dockerfile:1
+FROM --platform=$BUILDPLATFORM golang:1.26.0-alpine3.23 AS build
+ARG TARGETOS
+ARG TARGETARCH
+ARG VERSION=2.3.3
+ARG REVISION
+ARG BUILD_DATE
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN --mount=type=cache,target=/go/pkg/mod go mod download
+COPY . .
+RUN --mount=type=cache,target=/go/pkg/mod --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -trimpath \
+    -ldflags="-s -w -X miniflux.app/v2/internal/version.Version=$VERSION -X miniflux.app/v2/internal/version.Commit=$REVISION -X miniflux.app/v2/internal/version.BuildDate=$BUILD_DATE" \
+    -o /miniflux .
+
+FROM alpine:3.23
+ARG VERSION=2.3.3
+ARG REVISION
+ARG BUILD_DATE
+LABEL org.opencontainers.image.title="Miniflux Metadata Fork" \
+      org.opencontainers.image.description="Miniflux with client-namespaced article metadata" \
+      org.opencontainers.image.licenses="Apache-2.0" \
+      org.opencontainers.image.source="https://github.com/sintell/miniflux-meta" \
+      org.opencontainers.image.documentation="https://github.com/sintell/miniflux-meta/blob/feat/client-namespaced-metadata/METADATA.md" \
+      org.opencontainers.image.version=$VERSION \
+      org.opencontainers.image.revision=$REVISION \
+      org.opencontainers.image.created=$BUILD_DATE
+RUN apk add --no-cache ca-certificates tzdata
+COPY --from=build /miniflux /usr/bin/miniflux
+EXPOSE 8080
+ENV LISTEN_ADDR=0.0.0.0:8080
+USER 65534
+CMD ["/usr/bin/miniflux"]
