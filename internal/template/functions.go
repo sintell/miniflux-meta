@@ -4,6 +4,7 @@
 package template // import "miniflux.app/v2/internal/template"
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"html/template"
@@ -14,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"miniflux.app/v2/internal/config"
 	"miniflux.app/v2/internal/crypto"
@@ -59,6 +61,8 @@ func (f *funcMap) Map() template.FuncMap {
 			}
 			return (*entry.Meta)[field]
 		},
+		"metaFieldLabel":   metaFieldLabel,
+		"metaDisplayValue": metaDisplayValue,
 		"contains":         strings.Contains,
 		"csp":              csp,
 		"startsWith":       strings.HasPrefix,
@@ -178,6 +182,40 @@ func (f *funcMap) Map() template.FuncMap {
 			return ""
 		},
 	}
+}
+
+// metaDisplayValue renders JSON string lists as readable text, preserving other values.
+func metaDisplayValue(value string) string {
+	if !strings.HasPrefix(strings.TrimSpace(value), "[") {
+		return value
+	}
+	var items []json.RawMessage
+	if err := json.Unmarshal([]byte(value), &items); err != nil {
+		return value
+	}
+	labels := make([]string, len(items))
+	for i, item := range items {
+		if len(item) == 0 || item[0] != '"' {
+			return value
+		}
+		if err := json.Unmarshal(item, &labels[i]); err != nil {
+			return value
+		}
+	}
+	return strings.Join(labels, ", ")
+}
+
+// metaFieldLabel turns a namespaced metadata identifier into a reader-facing label.
+func metaFieldLabel(field string) string {
+	if _, name, ok := strings.Cut(field, "."); ok {
+		field = name
+	}
+	label := strings.Join(strings.Fields(strings.NewReplacer("_", " ", "-", " ").Replace(field)), " ")
+	runes := []rune(label)
+	if len(runes) > 0 {
+		runes[0] = unicode.ToUpper(runes[0])
+	}
+	return string(runes)
 }
 
 func (f *funcMap) iconPath(filename string) string {

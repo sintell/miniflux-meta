@@ -13,6 +13,27 @@ import (
 	"miniflux.app/v2/internal/model"
 )
 
+func TestMetaDisplayValue(t *testing.T) {
+	for _, tc := range []struct {
+		value string
+		want  string
+	}{
+		{`["AI","Business"]`, "AI, Business"},
+		{` ["AI", "Business"] `, "AI, Business"},
+		{`["A\"B","日本語"]`, `A"B, 日本語`},
+		{`[]`, ""},
+		{"Plain summary", "Plain summary"},
+		{"2.0", "2.0"},
+		{`["AI",null]`, `["AI",null]`},
+		{`["AI",2]`, `["AI",2]`},
+		{`["AI"`, `["AI"`},
+	} {
+		if got := metaDisplayValue(tc.value); got != tc.want {
+			t.Errorf("metaDisplayValue(%q) = %q, want %q", tc.value, got, tc.want)
+		}
+	}
+}
+
 func TestDict(t *testing.T) {
 	d, err := dict("k1", "v1", "k2", "v2")
 	if err != nil {

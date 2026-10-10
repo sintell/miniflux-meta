@@ -1,3 +1,3 @@
 {{ define "meta_title" }}
-{{ range .fields }}{{ with metaValue $.entry . }}<span class="meta-title" title="{{ . }}">[{{ . }}]</span> {{ end }}{{ end }}
+{{ range .fields }}{{ with metaValue $.entry . }}<span class="meta-title" title="{{ . }}">[{{ metaDisplayValue . }}]</span> {{ end }}{{ end }}
 {{ end }}
