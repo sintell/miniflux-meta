@@ -239,7 +239,7 @@
 {{ end }}
 <article class="entry-content {{ if ne $.user.GestureNav "none" }}gesture-nav-{{ $.user.GestureNav }}{{ end }}" dir="auto" {{ with or .entry.Language .entry.Feed.Language }}lang="{{ . }}"{{ end }}>
     {{ if .user }}{{ range $field := .metaPreferences.ContentFields }}{{ with metaValue $.entry $field }}
-    <section class="meta-content"><h2 title="{{ $field }}">{{ metaFieldLabel $field }}</h2><div>{{ metaDisplayValue . }}</div></section>
+    <section class="meta-content"><h2 title="{{ $field }}">{{ metaFieldLabel $field }}</h2><div>{{ metaContentValue . }}</div></section>
     {{ end }}{{ end }}{{ end }}
     {{ if not .entry.Feed.NoMediaPlayer }}
         {{ $mediaPlayerEnclosure := .entry.Enclosures.FindMediaPlayerEnclosure }}

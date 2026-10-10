@@ -117,8 +117,13 @@ from external producers do not push live updates into an already open browser ta
 
 Pagination, collection article links, and previous/next links preserve metadata
 query parameters. Title values are compact escaped text. Content-header values
-are escaped text with preserved line breaks. Empty/missing values render no badge
-or section. Anonymous shared pages do not load or render metadata.
+preserve line breaks and format backtick-delimited inline code as `<code>` and
+backtick-fenced code blocks as `<pre><code>`. Fences may include a language label;
+it is not rendered or used for syntax highlighting. Other markup remains escaped
+text, including HTML inside code. API values remain the original strings, and
+existing stored values receive this formatting without regeneration. Empty/missing
+values render no badge or section. Anonymous shared pages do not load or render
+metadata.
 
 Collection “mark all as read” actions update matching unread articles across all
 pages, evaluated in one SQL statement at action execution. They retain collection

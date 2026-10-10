@@ -63,6 +63,7 @@ func (f *funcMap) Map() template.FuncMap {
 		},
 		"metaFieldLabel":   metaFieldLabel,
 		"metaDisplayValue": metaDisplayValue,
+		"metaContentValue": metaContentValue,
 		"contains":         strings.Contains,
 		"csp":              csp,
 		"startsWith":       strings.HasPrefix,
