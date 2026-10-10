@@ -15,9 +15,20 @@ type NavMetadata struct {
 	HasSaveEntry    bool
 }
 
-// GetNavMetadata returns the navigation metadata for the given user in a
-// single SQL query.
+// GetNavMetadata loads the saved shortcut and computes navigation metadata in
+// one query, using the same predicate as article lists and bulk actions.
 func (s *Storage) GetNavMetadata(userID int64) (NavMetadata, error) {
+	preferences, err := s.MetaPreferences(userID)
+	if err != nil {
+		return NavMetadata{}, err
+	}
+	args := []any{userID, config.Opts.PollingParsingErrorLimit()}
+	var conditions []string
+	appendMetaPredicate(&conditions, &args, preferences.Filters)
+	metadataCondition := ""
+	if len(conditions) > 0 {
+		metadataCondition = " AND " + conditions[0]
+	}
 	query := `
 		SELECT
 			(SELECT count(*)
@@ -27,7 +38,7 @@ func (s *Storage) GetNavMetadata(userID int64) (NavMetadata, error) {
 			  WHERE e.user_id = $1
 			    AND e.status = 'unread'
 			    AND f.hide_globally IS FALSE
-			    AND c.hide_globally IS FALSE
+			    AND c.hide_globally IS FALSE ` + metadataCondition + `
 			) AS count_unread,
 			(SELECT EXISTS(
 				SELECT 1
@@ -76,7 +87,7 @@ func (s *Storage) GetNavMetadata(userID int64) (NavMetadata, error) {
 	var countUnread, countErrorFeeds int
 	var hasSaveEntry bool
 
-	err := s.db.QueryRow(query, userID, config.Opts.PollingParsingErrorLimit()).Scan(
+	err = s.db.QueryRow(query, args...).Scan(
 		&countUnread,
 		&hasSaveEntry,
 		&countErrorFeeds,

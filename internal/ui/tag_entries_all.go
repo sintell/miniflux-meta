@@ -28,6 +28,7 @@ func (h *handler) showTagEntriesAllPage(w http.ResponseWriter, r *http.Request) 
 	offset := request.QueryIntParam(r, "offset", 0)
 
 	entries, count, err := h.store.NewEntryQueryBuilder(user.ID).
+		WithMetaQuery(metaQuery(r)).
 		WithTags(tagName).
 		WithSorting("status", "asc").
 		WithSorting(user.EntryOrder, user.EntryDirection).

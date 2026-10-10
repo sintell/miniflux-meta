@@ -20,7 +20,7 @@ func (h *handler) markFeedAsRead(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = h.store.MarkFeedAsRead(userID, feedID, checkedAt); err != nil {
+	if err = h.store.NewEntryQueryBuilder(userID).WithFeedID(feedID).BeforePublishedDate(checkedAt).WithMetaQuery(metaQuery(r)).MarkMatchingAsRead(); err != nil {
 		response.HTMLServerError(w, r, err)
 		return
 	}

@@ -5,6 +5,7 @@ package view // import "miniflux.app/v2/internal/ui/view"
 
 import (
 	"net/http"
+	"net/url"
 
 	"miniflux.app/v2/internal/config"
 	"miniflux.app/v2/internal/http/request"
@@ -21,6 +22,17 @@ type view struct {
 
 // Set adds a new template argument.
 func (v *view) Set(param string, value any) *view {
+	if p, ok := value.(interface{ WithQuery(url.Values) any }); ok {
+		value = p.WithQuery(v.r.URL.Query())
+	}
+	if param == "nextEntryRoute" || param == "prevEntryRoute" {
+		if path, ok := value.(string); ok && path != "" {
+			value = MetaURL(path, v.r.URL.Query())
+		}
+	}
+	if param == "countUnread" {
+		v.params["menuUnreadCount"] = value
+	}
 	v.params[param] = value
 	return v
 }
@@ -35,8 +47,17 @@ func New(tpl *template.Engine, r *http.Request) *view {
 	webSession := request.WebSession(r)
 	theme := webSession.Theme()
 	flashSuccessMessage, flashErrorMessage := webSession.ConsumeMessages()
+	actionQuery := r.URL.Query()
+	actionQuery.Del("offset")
+	actionQuery.Set("scope", r.URL.EscapedPath())
+	collectionActionURL := config.Opts.BasePath() + "/collection/mark-as-read?" + actionQuery.Encode()
 	return &view{tpl, r, map[string]any{
 		"menu":                "",
+		"metaPreferences":     RequestMetadata(r).Preferences,
+		"metaQueryValues":     r.URL.Query(),
+		"collectionActionURL": collectionActionURL,
+		"collectionReturnURL": config.Opts.BasePath() + r.URL.RequestURI(),
+		"savedUnreadURL":      RequestMetadata(r).UnreadURL,
 		"csrf":                webSession.CSRF(),
 		"flashSuccessMessage": flashSuccessMessage,
 		"flashErrorMessage":   flashErrorMessage,

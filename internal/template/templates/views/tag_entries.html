@@ -11,6 +11,7 @@
 {{ end }}
 
 {{ define "content"}}
+{{ template "meta_bulk" . }}
 {{ if not .entries }}
     <p role="alert" class="alert alert-info">{{ t "alert.no_tag_entry" }}</p>
 {{ else }}
@@ -27,11 +28,11 @@
         >
             <header class="item-header" dir="auto">
                 <h2 id="entry-title-{{ .ID }}" class="item-title" {{ with or .Language .Feed.Language }}lang="{{ . }}"{{ end }}>
-                    <a href="{{ routePath "/tags/%s/entry/%d" (urlEncode $.tagName) .ID }}" {{ if and $.user.AlwaysOpenExternalLinks $.user.OpenExternalLinksInNewTab }}target="_blank"{{ end }}>
+                    <a href="{{ collectionURL (routePath "/tags/%s/entry/%d" (urlEncode $.tagName) .ID) $.metaQueryValues }}" {{ if and $.user.AlwaysOpenExternalLinks $.user.OpenExternalLinksInNewTab }}target="_blank"{{ end }}>
                         {{ if ne .Feed.Icon.IconID 0 }}
                         <img src="{{ routePath "/feed-icon/%s" .Feed.Icon.ExternalIconID }}" width="16" height="16" loading="lazy" alt="">
                         {{ end }}
-                        {{ .Title }}
+                        {{ template "meta_title" dict "entry" . "fields" $.metaPreferences.TitleFields }}{{ .Title }}
                     </a>
                 </h2>
                 <span class="category">

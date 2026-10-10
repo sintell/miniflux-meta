@@ -34,29 +34,29 @@
                     data-label-yes="{{ t "confirm.yes" }}"
                     data-label-no="{{ t "confirm.no" }}"
                     data-label-loading="{{ t "confirm.loading" }}"
-                    data-url="{{ routePath "/category/%d/mark-all-as-read" .category.ID }}">{{ icon "mark-all-as-read" }}{{ t "menu.mark_all_as_read" }}</button>
+                    data-url="{{ .collectionActionURL }}" data-redirect-url="{{ .collectionReturnURL }}">{{ icon "mark-all-as-read" }}{{ t "menu.mark_all_as_read" }}</button>
             </li>
             {{ end }}
             {{ if .showOnlyUnreadEntries }}
             <li>
-                <a class="page-link" href="{{ routePath "/category/%d/entries/all" .category.ID }}">{{ icon "show-all-entries" }}{{ t "menu.show_all_entries" }}</a>
+                <a class="page-link" href="{{ collectionURL (routePath "/category/%d/entries/all" .category.ID) .metaQueryValues }}">{{ icon "show-all-entries" }}{{ t "menu.show_all_entries" }}</a>
             </li>
             <li>
-                <a class="page-link" href="{{ routePath "/category/%d/entries/starred" .category.ID }}">{{ icon "star" }}{{ t "menu.show_only_starred_entries" }}</a>
+                <a class="page-link" href="{{ collectionURL (routePath "/category/%d/entries/starred" .category.ID) .metaQueryValues }}">{{ icon "star" }}{{ t "menu.show_only_starred_entries" }}</a>
             </li>
             {{ else if .showOnlyStarredEntries }}
             <li>
-                <a class="page-link" href="{{ routePath "/category/%d/entries" .category.ID }}">{{ icon "show-unread-entries" }}{{ t "menu.show_only_unread_entries" }}</a>
+                <a class="page-link" href="{{ collectionURL (routePath "/category/%d/entries" .category.ID) .metaQueryValues }}">{{ icon "show-unread-entries" }}{{ t "menu.show_only_unread_entries" }}</a>
             </li>
             <li>
-                <a class="page-link" href="{{ routePath "/category/%d/entries/all" .category.ID }}">{{ icon "show-all-entries" }}{{ t "menu.show_all_entries" }}</a>
+                <a class="page-link" href="{{ collectionURL (routePath "/category/%d/entries/all" .category.ID) .metaQueryValues }}">{{ icon "show-all-entries" }}{{ t "menu.show_all_entries" }}</a>
             </li>
             {{ else }}
             <li>
-                <a class="page-link" href="{{ routePath "/category/%d/entries" .category.ID }}">{{ icon "show-unread-entries" }}{{ t "menu.show_only_unread_entries" }}</a>
+                <a class="page-link" href="{{ collectionURL (routePath "/category/%d/entries" .category.ID) .metaQueryValues }}">{{ icon "show-unread-entries" }}{{ t "menu.show_only_unread_entries" }}</a>
             </li>
             <li>
-                <a class="page-link" href="{{ routePath "/category/%d/entries/starred" .category.ID }}">{{ icon "star" }}{{ t "menu.show_only_starred_entries" }}</a>
+                <a class="page-link" href="{{ collectionURL (routePath "/category/%d/entries/starred" .category.ID) .metaQueryValues }}">{{ icon "star" }}{{ t "menu.show_only_starred_entries" }}</a>
             </li>
             {{ end }}
             <li>
@@ -98,18 +98,18 @@
                 <h2 id="entry-title-{{ .ID }}" class="item-title" {{ with or .Language .Feed.Language }}lang="{{ . }}"{{ end }}>
                     <a
                         {{ if $.showOnlyUnreadEntries }}
-                        href="{{ routePath "/unread/category/%d/entry/%d" .Feed.Category.ID .ID }}"
+                        href="{{ collectionURL (routePath "/unread/category/%d/entry/%d" .Feed.Category.ID .ID) $.metaQueryValues }}"
                         {{ else if $.showOnlyStarredEntries }}
-                        href="{{ routePath "/starred/category/%d/entry/%d" .Feed.Category.ID .ID }}"
+                        href="{{ collectionURL (routePath "/starred/category/%d/entry/%d" .Feed.Category.ID .ID) $.metaQueryValues }}"
                         {{ else }}
-                        href="{{ routePath "/category/%d/entry/%d" .Feed.Category.ID .ID }}"
+                        href="{{ collectionURL (routePath "/category/%d/entry/%d" .Feed.Category.ID .ID) $.metaQueryValues }}"
                         {{ end }}
                         {{ if and $.user.AlwaysOpenExternalLinks $.user.OpenExternalLinksInNewTab }}target="_blank"{{ end }}
                     >
                         {{ if ne .Feed.Icon.IconID 0 }}
                             <img src="{{ routePath "/feed-icon/%s" .Feed.Icon.ExternalIconID }}" width="16" height="16" loading="lazy" alt="">
                         {{ end }}
-                        {{ .Title }}
+                        {{ template "meta_title" dict "entry" . "fields" $.metaPreferences.TitleFields }}{{ .Title }}
                     </a>
                 </h2>
                 <span class="category">

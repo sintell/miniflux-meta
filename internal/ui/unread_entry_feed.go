@@ -23,6 +23,7 @@ func (h *handler) showUnreadFeedEntryPage(w http.ResponseWriter, r *http.Request
 	feedID := request.RouteInt64Param(r, "feedID")
 
 	entry, err := h.store.NewEntryQueryBuilder(user.ID).
+		WithMetaQuery(metaQuery(r)).
 		WithFeedID(feedID).
 		WithEntryIDs(entryID).
 		GetEntry()
@@ -55,6 +56,7 @@ func (h *handler) showUnreadFeedEntryPage(w http.ResponseWriter, r *http.Request
 	}
 
 	prevEntry, nextEntry, err := h.store.NewEntryPaginationBuilder(user.ID, entry.ID, user.EntryOrder, user.EntryDirection).
+		WithMetaFilters(metaQuery(r).Filters).
 		WithFeedID(feedID).
 		WithStatus(model.EntryStatusUnread).
 		Entries()

@@ -8,6 +8,7 @@
 {{ end }}
 
 {{ define "content"}}
+<fieldset><legend>{{ t "meta.title" }}</legend><a href="{{ routePath "/settings/meta" }}">{{ t "meta.configure" }}</a></fieldset>
 {{ if and (not disableLocalAuth) (hasOAuth2Provider "google") }}
 <fieldset>
     <legend>{{ t "form.prefs.fieldset.google_authentication" }}</legend>

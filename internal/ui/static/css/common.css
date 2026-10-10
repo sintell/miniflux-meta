@@ -1407,3 +1407,16 @@ footer .elevator {
 .pagination-entry-top .elevator {
     display: none;
 }
+.meta-title {
+    display: inline-block;
+    max-width: 16em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+    font-size: .85em;
+}
+.meta-content { margin-bottom: 1.5em; overflow-wrap: anywhere; }
+.meta-content div { white-space: pre-wrap; }
+.meta-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5em; margin-bottom: .5em; }
+.meta-row select, .meta-row input { max-width: 100%; }

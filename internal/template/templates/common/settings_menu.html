@@ -1,6 +1,7 @@
 {{ define "settings_menu" }}
 <nav aria-label="{{ t "page.settings.title" }} {{ t "menu.title" }}">
     <ul>
+		<li><a href="{{ routePath "/settings/meta" }}">{{ t "meta.title" }}</a></li>
         <li>
             <a href="{{ routePath "/settings" }}">{{ icon "settings" }}{{ t "menu.settings" }}</a>
         </li>

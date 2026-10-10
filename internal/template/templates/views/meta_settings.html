@@ -1,0 +1,54 @@
+{{ define "title" }}{{ t "meta.title" }}{{ end }}
+{{ define "page_header" }}
+<section class="page-header"><h1>{{ t "meta.title" }}</h1>{{ template "settings_menu" dict "user" .user }}</section>
+{{ end }}
+{{ define "meta_select" }}
+<select name="{{ .name }}" aria-label="{{ t "meta.field" }}">
+    <option value="">—</option>
+    {{ range .definitions }}<option value="{{ .QualifiedName }}" {{ if eq .QualifiedName $.selected }}selected{{ end }}>{{ .QualifiedName }}</option>{{ end }}
+</select>
+{{ end }}
+{{ define "meta_filter_row" }}
+<div class="meta-row">
+{{ template "meta_select" dict "name" "filter_field" "definitions" .definitions "selected" .field }}
+<input name="filter_pattern" value="{{ .pattern }}" aria-label="{{ t "meta.pattern" }}" placeholder="*">
+<button type="button" data-meta-remove>{{ t "meta.remove" }}</button>
+</div>
+{{ end }}
+{{ define "meta_display_row" }}
+<div class="meta-row">
+{{ template "meta_select" . }}
+<button type="button" data-meta-up>{{ t "meta.up" }}</button>
+<button type="button" data-meta-remove>{{ t "meta.remove" }}</button>
+</div>
+{{ end }}
+{{ define "content" }}
+{{ if .errorMessage }}<p role="alert" class="alert alert-error">{{ .errorMessage }}</p>{{ end }}
+<form method="post" action="{{ routePath "/settings/meta" }}">
+<input type="hidden" name="csrf" value="{{ .csrf }}">
+<fieldset><legend>{{ t "meta.filters" }}</legend><p>{{ t "meta.or_help" }}</p>
+<div id="meta-filters">
+{{ range .preferences.Filters }}{{ template "meta_filter_row" dict "definitions" $.definitions "field" .Field "pattern" .Pattern }}{{ end }}
+{{ template "meta_filter_row" dict "definitions" .definitions "field" "" "pattern" "" }}
+</div>
+<template id="meta-filter-template">{{ template "meta_filter_row" dict "definitions" .definitions "field" "" "pattern" "" }}</template>
+<button type="button" data-meta-add="meta-filter-template" data-meta-target="meta-filters">{{ t "meta.add" }}</button>
+</fieldset>
+<fieldset><legend>{{ t "meta.title_fields" }}</legend><div id="meta-title-fields">
+{{ range .preferences.TitleFields }}{{ template "meta_display_row" dict "name" "title_field" "definitions" $.definitions "selected" . }}{{ end }}
+{{ template "meta_display_row" dict "name" "title_field" "definitions" .definitions "selected" "" }}
+</div>
+<template id="meta-title-template">{{ template "meta_display_row" dict "name" "title_field" "definitions" .definitions "selected" "" }}</template>
+<button type="button" data-meta-add="meta-title-template" data-meta-target="meta-title-fields">{{ t "meta.add" }}</button>
+</fieldset>
+<fieldset><legend>{{ t "meta.content_fields" }}</legend><div id="meta-content-fields">
+{{ range .preferences.ContentFields }}{{ template "meta_display_row" dict "name" "content_field" "definitions" $.definitions "selected" . }}{{ end }}
+{{ template "meta_display_row" dict "name" "content_field" "definitions" .definitions "selected" "" }}
+</div>
+<template id="meta-content-template">{{ template "meta_display_row" dict "name" "content_field" "definitions" .definitions "selected" "" }}</template>
+<button type="button" data-meta-add="meta-content-template" data-meta-target="meta-content-fields">{{ t "meta.add" }}</button>
+</fieldset>
+<button type="submit" class="button button-primary">{{ t "action.save" }}</button>
+</form>
+<dl>{{ range .definitions }}<dt>{{ .QualifiedName }}</dt><dd>{{ .Description }}</dd>{{ end }}</dl>
+{{ end }}

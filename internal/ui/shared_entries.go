@@ -21,6 +21,7 @@ func (h *handler) sharedEntries(w http.ResponseWriter, r *http.Request) {
 	offset := request.QueryIntParam(r, "offset", 0)
 
 	entries, count, err := h.store.NewEntryQueryBuilder(user.ID).
+		WithMetaQuery(metaQuery(r)).
 		WithShareCodeNotEmpty().
 		WithSorting(user.EntryOrder, user.EntryDirection).
 		WithSorting("id", user.EntryDirection).

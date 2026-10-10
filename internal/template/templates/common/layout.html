@@ -62,16 +62,14 @@
             </div>
             <ul id="header-menu">
                 <li {{ if eq .menu "unread" }}class="active"{{ end }} title="{{ t "tooltip.keyboard_shortcuts" "g u" }}">
-                    <a href="{{ routePath "/unread" }}"
+                    <a href="{{ if .savedUnreadURL }}{{ .savedUnreadURL }}{{ else }}{{ routePath "/unread" }}{{ end }}"
                         data-page="unread"
-                        {{ if gt .countUnread 0 }}
-                        aria-label="{{ t "menu.unread" }}, {{ plural "page.unread_entry_count" .countUnread .countUnread }}"
+                        {{ if gt .menuUnreadCount 0 }}
+                        aria-label="{{ t "menu.unread" }}, {{ plural "page.unread_entry_count" .menuUnreadCount .menuUnreadCount }}"
                         {{ end }}
                     >
                         {{ icon "entries" }}{{ t "menu.unread" }}
-                        {{ if gt .countUnread 0 }}
-                        <span class="unread-counter-wrapper" aria-hidden="true">(<span class="unread-counter">{{ .countUnread }}</span>)</span>
-                        {{ end }}
+                        <span class="unread-counter-wrapper" aria-hidden="true" {{ if not .menuUnreadCount }}hidden{{ end }}>(<span class="menu-unread-counter" data-count-url="{{ routePath "/meta/unread-count" }}">{{ .menuUnreadCount }}</span>)</span>
                     </a>
                 </li>
                 <li {{ if eq .menu "starred" }}class="active"{{ end }} title="{{ t "tooltip.keyboard_shortcuts" "g b" }}">

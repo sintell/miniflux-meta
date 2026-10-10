@@ -39,6 +39,26 @@ func (f *funcMap) Map() template.FuncMap {
 		f.iconPaths[filename] = f.basePath + "/icon/" + bundle.Checksum + "/" + filename
 	}
 	return template.FuncMap{
+		"collectionURL": func(path string, values url.Values) string {
+			u, err := url.Parse(path)
+			if err != nil {
+				return path
+			}
+			q := u.Query()
+			for _, key := range []string{"filter", "meta", "q", "unread"} {
+				if v, ok := values[key]; ok {
+					q[key] = v
+				}
+			}
+			u.RawQuery = q.Encode()
+			return u.String()
+		},
+		"metaValue": func(entry *model.Entry, field string) string {
+			if entry == nil || entry.Meta == nil {
+				return ""
+			}
+			return (*entry.Meta)[field]
+		},
 		"contains":         strings.Contains,
 		"csp":              csp,
 		"startsWith":       strings.HasPrefix,

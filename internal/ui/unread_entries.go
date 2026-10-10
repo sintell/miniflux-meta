@@ -22,6 +22,7 @@ func (h *handler) showUnreadPage(w http.ResponseWriter, r *http.Request) {
 	offset := request.QueryIntParam(r, "offset", 0)
 
 	entries, countUnread, err := h.store.NewEntryQueryBuilder(user.ID).
+		WithMetaQuery(metaQuery(r)).
 		WithStatuses(model.EntryStatusUnread).
 		WithSorting(user.EntryOrder, user.EntryDirection).
 		WithSorting("id", user.EntryDirection).
@@ -39,6 +40,7 @@ func (h *handler) showUnreadPage(w http.ResponseWriter, r *http.Request) {
 		offset = 0
 
 		entries, countUnread, err = h.store.NewEntryQueryBuilder(user.ID).
+			WithMetaQuery(metaQuery(r)).
 			WithStatuses(model.EntryStatusUnread).
 			WithSorting(user.EntryOrder, user.EntryDirection).
 			WithSorting("id", user.EntryDirection).
@@ -59,6 +61,7 @@ func (h *handler) showUnreadPage(w http.ResponseWriter, r *http.Request) {
 	view.Set("user", user)
 	navMetadata, _ := h.store.GetNavMetadata(user.ID)
 	view.Set("countUnread", countUnread)
+	view.Set("menuUnreadCount", navMetadata.CountUnread)
 	view.Set("countErrorFeeds", navMetadata.CountErrorFeeds)
 	view.Set("hasSaveEntry", navMetadata.HasSaveEntry)
 

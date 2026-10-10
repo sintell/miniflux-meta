@@ -28,6 +28,7 @@ func (h *handler) showSearchPage(w http.ResponseWriter, r *http.Request) {
 
 	if searchQuery != "" {
 		builder := h.store.NewEntryQueryBuilder(user.ID).
+			WithMetaQuery(metaQuery(r)).
 			WithSearchQuery(searchQuery).
 			WithoutContent().
 			WithOffset(offset).

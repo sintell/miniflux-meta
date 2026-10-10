@@ -23,6 +23,7 @@ func (h *handler) showUnreadCategoryEntryPage(w http.ResponseWriter, r *http.Req
 	entryID := request.RouteInt64Param(r, "entryID")
 
 	entry, err := h.store.NewEntryQueryBuilder(user.ID).
+		WithMetaQuery(metaQuery(r)).
 		WithCategoryID(categoryID).
 		WithEntryIDs(entryID).
 		GetEntry()
@@ -55,6 +56,7 @@ func (h *handler) showUnreadCategoryEntryPage(w http.ResponseWriter, r *http.Req
 	}
 
 	prevEntry, nextEntry, err := h.store.NewEntryPaginationBuilder(user.ID, entry.ID, user.EntryOrder, user.EntryDirection).
+		WithMetaFilters(metaQuery(r).Filters).
 		WithCategoryID(categoryID).
 		WithStatus(model.EntryStatusUnread).
 		Entries()

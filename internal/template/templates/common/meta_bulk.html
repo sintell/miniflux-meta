@@ -1,0 +1,7 @@
+{{ define "meta_bulk" }}
+{{ if .entries }}<button class="page-button" data-confirm="true"
+data-url="{{ .collectionActionURL }}" data-redirect-url="{{ .collectionReturnURL }}"
+data-label-question="{{ t "confirm.question" }}" data-label-yes="{{ t "confirm.yes" }}"
+data-label-no="{{ t "confirm.no" }}" data-label-loading="{{ t "confirm.loading" }}">
+{{ icon "mark-all-as-read" }}{{ t "menu.mark_all_as_read" }}</button>{{ end }}
+{{ end }}

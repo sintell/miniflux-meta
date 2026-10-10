@@ -1,4 +1,18 @@
 // Sentinel values for specific list navigation.
+document.addEventListener("click", (event) => {
+    const add = event.target.closest("[data-meta-add]");
+    if (add) {
+        const template = document.getElementById(add.dataset.metaAdd);
+        document.getElementById(add.dataset.metaTarget).append(template.content.cloneNode(true));
+    }
+    const remove = event.target.closest("[data-meta-remove]");
+    if (remove) remove.closest(".meta-row").remove();
+    const up = event.target.closest("[data-meta-up]");
+    if (up) {
+        const row = up.closest(".meta-row");
+        if (row.previousElementSibling) row.parentNode.insertBefore(row, row.previousElementSibling);
+    }
+});
 const TOP = 9999;
 const BOTTOM = -9999;
 
@@ -897,6 +911,17 @@ function scrollToCurrentItemAction() {
  * @param {number} delta - The amount to change the counter by.
  */
 function updateUnreadCounterValue(delta) {
+    const badge = document.querySelector(".menu-unread-counter");
+    if (badge) {
+        fetch(badge.dataset.countUrl).then(response => response.json()).then(data => {
+            if (Number.isInteger(data.count)) {
+                badge.textContent = data.count;
+                badge.parentElement.hidden = data.count === 0;
+                // The visible count is authoritative after a status mutation.
+                badge.closest("a").removeAttribute("aria-label");
+            }
+        }).catch(() => {});
+    }
     document.querySelectorAll("span.unread-counter").forEach((element) => {
         const oldValue = parseInt(element.textContent, 10);
         element.textContent = oldValue + delta;

@@ -7,6 +7,7 @@
 {{ end }}
 
 {{ define "content"}}
+{{ template "meta_bulk" . }}
 <search role="search">
     <form class="search-form" action="{{ routePath "/search" }}" aria-labelledby="search-input-label">
         <div class="search-input-row">
@@ -33,13 +34,13 @@
             >
                 <header class="item-header" dir="auto">
                     <h2 id="entry-title-{{ .ID }}" class="item-title" {{ with or .Language .Feed.Language }}lang="{{ . }}"{{ end }}>
-                        <a href="{{ routePath "/search/entry/%d" .ID }}{{ queryString (dict "q" $.searchQuery "unread" $.searchUnreadOnly) }}" {{ if and $.user.AlwaysOpenExternalLinks $.user.OpenExternalLinksInNewTab }}target="_blank"{{ end }}>
+                        <a href="{{ collectionURL (routePath "/search/entry/%d" .ID) $.metaQueryValues }}" {{ if and $.user.AlwaysOpenExternalLinks $.user.OpenExternalLinksInNewTab }}target="_blank"{{ end }}>
                             {{ if ne .Feed.Icon.IconID 0 }}
                             <img src="{{ routePath "/feed-icon/%s" .Feed.Icon.ExternalIconID }}" width="16" height="16" loading="lazy" alt="{{ .Feed.Title }}">
                             {{ else }}
                             <span class="sr-only">{{ .Feed.Title }}</span>
                             {{ end }}
-                            {{ .Title }}
+                            {{ template "meta_title" dict "entry" . "fields" $.metaPreferences.TitleFields }}{{ .Title }}
                         </a>
                     </h2>
                     <span class="category">

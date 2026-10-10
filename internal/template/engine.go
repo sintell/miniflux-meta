@@ -60,6 +60,7 @@ func (e *Engine) ParseTemplates() {
 		"search.html":              {"item_meta.html", "layout.html", "pagination.html"},
 		"sessions.html":            {"layout.html", "settings_menu.html"},
 		"settings.html":            {"layout.html", "settings_menu.html"},
+		"meta_settings.html":       {"layout.html", "settings_menu.html"},
 		"shared_entries.html":      {"layout.html", "pagination.html"},
 		"tag_entries.html":         {"item_meta.html", "layout.html", "pagination.html"},
 		"unread_entries.html":      {"item_meta.html", "layout.html", "pagination.html"},
@@ -69,6 +70,7 @@ func (e *Engine) ParseTemplates() {
 
 	for name, dependencies := range templates {
 		tpl := template.New("").Funcs(funcMap)
+		template.Must(tpl.ParseFS(commonTemplateFiles, "templates/common/meta_title.html", "templates/common/meta_bulk.html"))
 		for _, dependency := range dependencies {
 			template.Must(tpl.ParseFS(commonTemplateFiles, "templates/common/"+dependency))
 		}

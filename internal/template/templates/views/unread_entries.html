@@ -24,8 +24,8 @@
                 <button
                     class="page-button"
                     data-confirm="true"
-                    data-url="{{ routePath "/mark-all-as-read" }}"
-                    data-redirect-url="{{ routePath "/unread" }}"
+                    data-url="{{ .collectionActionURL }}"
+                    data-redirect-url="{{ .collectionReturnURL }}"
                     data-label-question="{{ t "confirm.question" }}"
                     data-label-yes="{{ t "confirm.yes" }}"
                     data-label-no="{{ t "confirm.no" }}"
@@ -54,11 +54,11 @@
         >
             <header class="item-header" dir="auto">
                 <h2 id="entry-title-{{ .ID }}" class="item-title" {{ with or .Language .Feed.Language }}lang="{{ . }}"{{ end }}>
-                    <a href="{{ routePath "/unread/entry/%d" .ID }}" {{ if and $.user.AlwaysOpenExternalLinks $.user.OpenExternalLinksInNewTab }}target="_blank"{{ end }}>
+                    <a href="{{ collectionURL (routePath "/unread/entry/%d" .ID) $.metaQueryValues }}" {{ if and $.user.AlwaysOpenExternalLinks $.user.OpenExternalLinksInNewTab }}target="_blank"{{ end }}>
                         {{ if ne .Feed.Icon.IconID 0 -}}
                         <img src="{{ routePath "/feed-icon/%s" .Feed.Icon.ExternalIconID }}" width="16" height="16" loading="lazy" alt="">
                         {{ end -}}
-                        {{ .Title }}
+                        {{ template "meta_title" dict "entry" . "fields" $.metaPreferences.TitleFields }}{{ .Title }}
                     </a>
                 </h2>
                 <span class="category">

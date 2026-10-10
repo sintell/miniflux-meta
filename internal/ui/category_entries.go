@@ -35,6 +35,7 @@ func (h *handler) showCategoryEntriesPage(w http.ResponseWriter, r *http.Request
 
 	unreadEntries := func(offset int) (model.Entries, int, error) {
 		return h.store.NewEntryQueryBuilder(user.ID).
+			WithMetaQuery(metaQuery(r)).
 			WithCategoryID(category.ID).
 			WithSorting(user.EntryOrder, user.EntryDirection).
 			WithSorting("id", user.EntryDirection).

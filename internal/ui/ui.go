@@ -42,6 +42,8 @@ func Serve(store *storage.Storage, pool *worker.Pool) http.Handler {
 
 	// Unread page.
 	mux.HandleFunc("POST /mark-all-as-read", handler.markAllAsRead)
+	mux.HandleFunc("POST /collection/mark-as-read", handler.markCollectionAsRead)
+	mux.HandleFunc("GET /meta/unread-count", handler.metaUnreadCount)
 	mux.HandleFunc("GET /unread", handler.showUnreadPage)
 	mux.HandleFunc("GET /unread/entry/{entryID}", handler.showUnreadEntryPage)
 
@@ -125,6 +127,8 @@ func Serve(store *storage.Storage, pool *worker.Pool) http.Handler {
 	// Settings pages.
 	mux.HandleFunc("GET /settings", handler.showSettingsPage)
 	mux.HandleFunc("POST /settings", handler.updateSettings)
+	mux.HandleFunc("GET /settings/meta", handler.metaSettings)
+	mux.HandleFunc("POST /settings/meta", handler.metaSettings)
 	mux.HandleFunc("GET /integrations", handler.showIntegrationPage)
 	mux.HandleFunc("POST /integration", handler.updateIntegration)
 	mux.HandleFunc("GET /about", handler.showAboutPage)
@@ -181,5 +185,5 @@ func Serve(store *storage.Storage, pool *worker.Pool) http.Handler {
 	})
 
 	// Apply middleware chain: web session -> CSRF validation -> handlers.
-	return webSessionMiddleware.handle(csrfMiddleware.handle(mux))
+	return webSessionMiddleware.handle(csrfMiddleware.handle(handler.withMetadata(mux)))
 }

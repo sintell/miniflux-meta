@@ -28,6 +28,7 @@ func (h *handler) showTagEntryPage(w http.ResponseWriter, r *http.Request) {
 	entryID := request.RouteInt64Param(r, "entryID")
 
 	entry, err := h.store.NewEntryQueryBuilder(user.ID).
+		WithMetaQuery(metaQuery(r)).
 		WithTags(tagName).
 		WithEntryIDs(entryID).
 		GetEntry()
@@ -52,6 +53,7 @@ func (h *handler) showTagEntryPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	prevEntry, nextEntry, err := h.store.NewEntryPaginationBuilder(user.ID, entry.ID, user.EntryOrder, user.EntryDirection).
+		WithMetaFilters(metaQuery(r).Filters).
 		WithTags([]string{tagName}).
 		Entries()
 	if err != nil {

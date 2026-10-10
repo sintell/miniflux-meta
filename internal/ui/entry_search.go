@@ -24,6 +24,7 @@ func (h *handler) showSearchEntryPage(w http.ResponseWriter, r *http.Request) {
 	unreadOnly := request.QueryBoolParam(r, "unread", false)
 
 	entry, err := h.store.NewEntryQueryBuilder(user.ID).
+		WithMetaQuery(metaQuery(r)).
 		WithSearchQuery(searchQuery).
 		WithEntryIDs(entryID).
 		GetEntry()
@@ -53,6 +54,7 @@ func (h *handler) showSearchEntryPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	entryPaginationBuilder := h.store.NewEntryPaginationBuilder(user.ID, entry.ID, user.EntryOrder, user.EntryDirection).
+		WithMetaFilters(metaQuery(r).Filters).
 		WithSearchQuery(searchQuery)
 	if unreadOnly {
 		if entry.Status == model.EntryStatusRead {

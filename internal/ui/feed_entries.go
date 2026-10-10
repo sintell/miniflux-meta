@@ -35,6 +35,7 @@ func (h *handler) showFeedEntriesPage(w http.ResponseWriter, r *http.Request) {
 
 	unreadEntries := func(offset int) (model.Entries, int, error) {
 		return h.store.NewEntryQueryBuilder(user.ID).
+			WithMetaQuery(metaQuery(r)).
 			WithFeedID(feed.ID).
 			WithStatuses(model.EntryStatusUnread).
 			WithSorting(user.EntryOrder, user.EntryDirection).

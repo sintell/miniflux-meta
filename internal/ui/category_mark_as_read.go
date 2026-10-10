@@ -26,7 +26,7 @@ func (h *handler) markCategoryAsRead(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = h.store.MarkCategoryAsRead(userID, categoryID, time.Now()); err != nil {
+	if err = h.store.NewEntryQueryBuilder(userID).WithCategoryID(categoryID).BeforePublishedDate(time.Now()).WithMetaQuery(metaQuery(r)).MarkMatchingAsRead(); err != nil {
 		response.HTMLServerError(w, r, err)
 		return
 	}

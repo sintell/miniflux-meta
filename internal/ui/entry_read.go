@@ -22,6 +22,7 @@ func (h *handler) showReadEntryPage(w http.ResponseWriter, r *http.Request) {
 	entryID := request.RouteInt64Param(r, "entryID")
 
 	entry, err := h.store.NewEntryQueryBuilder(user.ID).
+		WithMetaQuery(metaQuery(r)).
 		WithEntryIDs(entryID).
 		GetEntry()
 	if err != nil {
@@ -40,6 +41,7 @@ func (h *handler) showReadEntryPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	prevEntry, nextEntry, err := h.store.NewEntryPaginationBuilder(user.ID, entry.ID, "changed_at", "desc").
+		WithMetaFilters(metaQuery(r).Filters).
 		WithStatus(model.EntryStatusRead).
 		Entries()
 	if err != nil {
