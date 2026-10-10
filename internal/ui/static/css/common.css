@@ -1413,10 +1413,84 @@ footer .elevator {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    vertical-align: bottom;
+    vertical-align: text-bottom;
     font-size: .85em;
 }
 .meta-content { margin-bottom: 1.5em; overflow-wrap: anywhere; }
 .meta-content div { white-space: pre-wrap; }
-.meta-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5em; margin-bottom: .5em; }
-.meta-row select, .meta-row input { max-width: 100%; }
+
+.entry-content .meta-content h2 {
+    margin: 0 0 .5em;
+    font-size: .9em;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* Metadata settings */
+.meta-settings fieldset {
+    min-width: 0;
+    padding: 1em;
+    border: 1px solid var(--panel-border-color);
+}
+
+.meta-help {
+    margin: 0 0 1em;
+    font-size: .9em;
+    line-height: 1.5;
+}
+
+.meta-row,
+.meta-row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5em;
+}
+
+.meta-row {
+    margin-bottom: .75em;
+}
+
+.meta-row .meta-field-select,
+.meta-row input[type="text"] {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    padding: .4em .5em;
+    font-size: 1em;
+    line-height: 1.4;
+}
+
+.meta-field-select {
+    width: 18em;
+    color: var(--input-color);
+    background: var(--input-background);
+    border: var(--input-border);
+}
+
+.meta-field-select:focus {
+    color: var(--input-focus-color);
+    border-color: var(--input-focus-border-color);
+    outline: 0;
+    box-shadow: var(--input-focus-box-shadow);
+}
+
+.meta-row input[type="text"] {
+    width: 14em;
+}
+
+.meta-row .button {
+    box-sizing: border-box;
+    margin: 0;
+    font-size: 1em;
+    padding: .4em .75em;
+    line-height: 1.4;
+}
+
+@media (max-width: 620px) {
+    .meta-row .meta-field-select,
+    .meta-row input[type="text"] {
+        width: 100%;
+    }
+}
