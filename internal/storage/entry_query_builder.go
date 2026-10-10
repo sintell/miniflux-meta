@@ -26,6 +26,7 @@ type EntryQueryBuilder struct {
 	offset          int
 	fetchEnclosures bool
 	excludeContent  bool
+	metaFields      []string
 }
 
 // WithEnclosures fetches enclosures for each entry.
@@ -448,6 +449,15 @@ func (e *EntryQueryBuilder) fetchEntries(withCount bool) (model.Entries, int, er
 		entryIDs = append(entryIDs, entry.ID)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, 0, err
+	}
+	if err := rows.Close(); err != nil {
+		return nil, 0, err
+	}
+	if err := e.store.LoadEntryMeta(entries, e.metaFields); err != nil {
+		return nil, 0, err
+	}
 	if e.fetchEnclosures && len(entryIDs) > 0 {
 		enclosures, err := e.store.EnclosuresByEntryIDs(entryIDs)
 		if err != nil {

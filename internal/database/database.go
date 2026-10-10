@@ -47,7 +47,7 @@ func Migrate(db *sql.DB) error {
 		}
 	}
 
-	return nil
+	return migrateMeta(db)
 }
 
 // IsSchemaUpToDate checks if the database schema is up to date.
@@ -57,5 +57,5 @@ func IsSchemaUpToDate(db *sql.DB) error {
 	if currentVersion < schemaVersion {
 		return fmt.Errorf(`the database schema is not up to date: current=v%d expected=v%d`, currentVersion, schemaVersion)
 	}
-	return nil
+	return checkMetaSchema(db)
 }
