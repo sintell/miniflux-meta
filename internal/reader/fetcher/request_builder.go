@@ -169,12 +169,12 @@ func (r *RequestBuilder) ExecuteRequest(requestURL string) (*http.Response, erro
 	}
 
 	directDialer := &net.Dialer{
-		Timeout:   10 * time.Second, // Default is 30s.
+		Timeout:   r.clientTimeout,
 		KeepAlive: 15 * time.Second, // Default is 30s.
 	}
 
 	proxyDialer := &net.Dialer{
-		Timeout:   10 * time.Second, // Default is 30s.
+		Timeout:   r.clientTimeout,
 		KeepAlive: 15 * time.Second, // Default is 30s.
 	}
 
@@ -233,6 +233,18 @@ func (r *RequestBuilder) ExecuteRequest(requestURL string) (*http.Response, erro
 
 			return directDialer.DialContext(ctx, network, addr)
 		}
+	}
+
+	// Bound the entire dial sequence, including DNS retry backoff. The transport
+	// may detach dialing from the request context when managing connections.
+	dialContext := transport.DialContext
+	transport.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+		if r.clientTimeout > 0 {
+			var cancel context.CancelFunc
+			ctx, cancel = context.WithTimeout(ctx, r.clientTimeout)
+			defer cancel()
+		}
+		return dialWithDNSRetries(ctx, network, addr, dialContext)
 	}
 
 	if r.ignoreTLSErrors {
@@ -306,6 +318,32 @@ func (r *RequestBuilder) ExecuteRequest(requestURL string) (*http.Response, erro
 	))
 
 	return client.Do(req)
+}
+
+// Retry only transient DNS failures, before an HTTP request has been sent.
+// Permanent DNS errors and TCP/TLS failures are left to the caller.
+func dialWithDNSRetries(ctx context.Context, network, addr string, dial func(context.Context, string, string) (net.Conn, error)) (net.Conn, error) {
+	const maxRetries = 2
+	for attempt := 0; ; attempt++ {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
+
+		conn, err := dial(ctx, network, addr)
+		var dnsErr *net.DNSError
+		if err == nil || attempt >= maxRetries || !errors.As(err, &dnsErr) || dnsErr.IsNotFound || (!dnsErr.IsTimeout && !dnsErr.IsTemporary) {
+			return conn, err
+		}
+
+		delay := time.Duration(1<<attempt) * 250 * time.Millisecond
+		timer := time.NewTimer(delay)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return nil, ctx.Err()
+		case <-timer.C:
+		}
+	}
 }
 
 func normalizeDialAddress(addr string) string {

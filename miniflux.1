@@ -353,6 +353,8 @@ Default is empty\&.
 .TP
 .B HTTP_CLIENT_TIMEOUT
 Time limit in seconds before the HTTP client cancels the request\&.
+Includes DNS resolution, connection establishment, redirects, and reading the response body\&.
+Transient DNS failures are retried up to twice within this time limit\&.
 .br
 Default is 20 seconds\&.
 .TP
