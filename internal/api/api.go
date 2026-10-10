@@ -22,6 +22,11 @@ func NewHandler(store *storage.Storage, pool *worker.Pool) http.Handler {
 	middleware := newMiddleware(store)
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("POST /v1/meta/register", handler.registerMetaHandler)
+	mux.HandleFunc("GET /v1/meta", handler.listMetaHandler)
+	mux.HandleFunc("PUT /v1/entries/{entryID}/meta/{clientID}/{name}", handler.writeMetaHandler)
+	mux.HandleFunc("PATCH /v1/entries/{entryID}/meta/{clientID}", handler.writeMetaHandler)
+	mux.HandleFunc("DELETE /v1/entries/{entryID}/meta/{clientID}/{name}", handler.writeMetaHandler)
 	mux.HandleFunc("POST /v1/users", handler.createUserHandler)
 	mux.HandleFunc("GET /v1/users", handler.usersHandler)
 	mux.HandleFunc("GET /v1/users/{identifier}", handler.dispatchUserLookupHandler)

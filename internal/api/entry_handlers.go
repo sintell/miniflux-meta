@@ -25,6 +25,9 @@ import (
 )
 
 func (h *handler) getEntryFromBuilder(w http.ResponseWriter, r *http.Request, b *storage.EntryQueryBuilder) {
+	if !h.configureMeta(w, r, b) {
+		return
+	}
 	entry, err := b.GetEntry()
 	if err != nil {
 		response.JSONServerError(w, r, err)
@@ -194,6 +197,9 @@ func (h *handler) findEntries(w http.ResponseWriter, r *http.Request, feedID int
 	}
 
 	builder = configureFilters(builder, r)
+	if !h.configureMeta(w, r, builder) {
+		return
+	}
 
 	entries, count, err := builder.GetEntriesWithCount()
 	if err != nil {
@@ -557,6 +563,9 @@ func (h *handler) getEntryIDsHandler(w http.ResponseWriter, r *http.Request) {
 		builder.WithStatuses(request.QueryStringParam(r, "status", ""))
 	}
 
+	if !h.configureMeta(w, r, builder) {
+		return
+	}
 	entryIDs, total, err := builder.GetEntryIDsWithCount()
 	if err != nil {
 		response.JSONServerError(w, r, err)

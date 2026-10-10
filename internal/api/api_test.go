@@ -30,7 +30,7 @@ func TestNewHandlerHandlesOptionsRequests(t *testing.T) {
 		t.Fatalf(`Unexpected Access-Control-Allow-Origin header, got %q`, got)
 	}
 
-	if got := w.Header().Get("Access-Control-Allow-Methods"); got != "GET, POST, PUT, DELETE, OPTIONS" {
+	if got := w.Header().Get("Access-Control-Allow-Methods"); got != "GET, POST, PUT, PATCH, DELETE, OPTIONS" {
 		t.Fatalf(`Unexpected Access-Control-Allow-Methods header, got %q`, got)
 	}
 

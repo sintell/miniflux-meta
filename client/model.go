@@ -260,26 +260,27 @@ type Feeds []*Feed
 
 // Entry represents a subscription item in the system.
 type Entry struct {
-	ID          int64      `json:"id"`
-	Date        time.Time  `json:"published_at"`
-	ChangedAt   time.Time  `json:"changed_at"`
-	CreatedAt   time.Time  `json:"created_at"`
-	Feed        *Feed      `json:"feed,omitempty"`
-	Hash        string     `json:"hash"`
-	URL         string     `json:"url"`
-	CommentsURL string     `json:"comments_url"`
-	Title       string     `json:"title"`
-	Status      string     `json:"status"`
-	Content     string     `json:"content"`
-	Language    string     `json:"language"`
-	Author      string     `json:"author"`
-	ShareCode   string     `json:"share_code"`
-	Enclosures  Enclosures `json:"enclosures,omitempty"`
-	Tags        []string   `json:"tags"`
-	ReadingTime int        `json:"reading_time"`
-	UserID      int64      `json:"user_id"`
-	FeedID      int64      `json:"feed_id"`
-	Starred     bool       `json:"starred"`
+	ID          int64              `json:"id"`
+	Date        time.Time          `json:"published_at"`
+	ChangedAt   time.Time          `json:"changed_at"`
+	CreatedAt   time.Time          `json:"created_at"`
+	Feed        *Feed              `json:"feed,omitempty"`
+	Hash        string             `json:"hash"`
+	URL         string             `json:"url"`
+	CommentsURL string             `json:"comments_url"`
+	Title       string             `json:"title"`
+	Status      string             `json:"status"`
+	Content     string             `json:"content"`
+	Language    string             `json:"language"`
+	Author      string             `json:"author"`
+	ShareCode   string             `json:"share_code"`
+	Enclosures  Enclosures         `json:"enclosures,omitempty"`
+	Tags        []string           `json:"tags"`
+	Meta        *map[string]string `json:"meta,omitempty"`
+	ReadingTime int                `json:"reading_time"`
+	UserID      int64              `json:"user_id"`
+	FeedID      int64              `json:"feed_id"`
+	Starred     bool               `json:"starred"`
 }
 
 // EntryModificationRequest represents a request to modify an entry.
@@ -335,6 +336,8 @@ type Filter struct {
 	FeedID          int64
 	Statuses        []string
 	Tags            []string
+	Meta            []string
+	Filters         []string
 	GloballyVisible bool
 }
 
@@ -346,6 +349,7 @@ type EntryResultSet struct {
 
 // EntryIDsFilter holds optional filter and pagination parameters for the entry IDs endpoint.
 type EntryIDsFilter struct {
+	Filters []string
 	Limit   int
 	Offset  int
 	Starred *bool
