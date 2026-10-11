@@ -110,7 +110,9 @@ its field selection) to remove that preference. New strings are translated into
 English and Russian; other catalogs currently contain English placeholders.
 
 The Unread menu URL contains the saved filters and its badge counts that saved
-query, including normal feed/category visibility rules. Opening `/unread` directly
+query, including normal feed/category visibility rules. The logo, homepage and login
+redirects also use the saved filters when Unread is the default homepage, as does the
+authenticated home-screen app's Unread shortcut. Opening `/unread` directly
 is unfiltered. Native API calls and compatibility APIs do not inherit the shortcut.
 The badge refreshes after web status actions and on subsequent page loads; writes
 from external producers do not push live updates into an already open browser tab.

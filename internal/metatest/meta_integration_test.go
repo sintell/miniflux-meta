@@ -362,6 +362,62 @@ func TestMetadataEndToEnd(t *testing.T) {
 	if !strings.Contains(raw, `class="unread-counter">8</span>`) {
 		t.Fatal("raw unread inherited filters")
 	}
+	// App launches and homepage navigation must use the same saved query as
+	// the Unread menu, even though the root and manifest routes are public.
+	savedUnreadURL := "/unread?" + p.QueryValues().Encode()
+	rawDoc, err := goquery.NewDocumentFromReader(strings.NewReader(raw))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, selector := range []string{`.logo a`, `a[data-page="unread"]`} {
+		if href, _ := rawDoc.Find(selector).Attr("href"); href != savedUnreadURL {
+			t.Fatalf("%s lost saved filters: %s", selector, href)
+		}
+	}
+	noRedirect := &http.Client{Jar: jar, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
+	checkHomeRedirect := func(res *http.Response, err error, want string) {
+		t.Helper()
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer res.Body.Close()
+		if res.StatusCode != http.StatusFound || res.Header.Get("Location") != want {
+			t.Fatalf("homepage redirect: %d %s, want %s", res.StatusCode, res.Header.Get("Location"), want)
+		}
+	}
+	res, err = noRedirect.Get(web.URL + "/")
+	checkHomeRedirect(res, err, savedUnreadURL)
+	for _, redirect := range []string{"", "/unread?filter=app_a.rating:7.*"} {
+		res, err = noRedirect.PostForm(web.URL+"/login", url.Values{"username": {"alice"}, "password": {"metadata-test"}, "csrf": {csrf[1]}, "redirect_url": {redirect}})
+		want := redirect
+		if want == "" {
+			want = savedUnreadURL
+		}
+		checkHomeRedirect(res, err, want)
+	}
+	var manifest struct {
+		StartURL  string `json:"start_url"`
+		Shortcuts []struct {
+			URL string `json:"url"`
+		} `json:"shortcuts"`
+	}
+	if err := json.Unmarshal([]byte(get("/manifest.json")), &manifest); err != nil {
+		t.Fatal(err)
+	}
+	if manifest.StartURL != "/" || manifest.Shortcuts[1].URL != savedUnreadURL {
+		t.Fatal("app launch/shortcut lost saved query", manifest)
+	}
+	exec(`UPDATE users SET default_home_page='starred' WHERE id=1`)
+	res, err = noRedirect.Get(web.URL + "/")
+	checkHomeRedirect(res, err, "/starred")
+	starredDoc, err := goquery.NewDocumentFromReader(strings.NewReader(get("/starred")))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if href, _ := starredDoc.Find(".logo a").Attr("href"); href != "/starred" {
+		t.Fatal("non-Unread homepage changed", href)
+	}
+	exec(`UPDATE users SET default_home_page='unread' WHERE id=1`)
 	filtered := get("/unread?filter=app_a.rating:8.*&meta=app_a.summary")
 	if !strings.Contains(filtered, `class="unread-counter">5</span>`) {
 		t.Fatal("filtered count missing", filtered)
