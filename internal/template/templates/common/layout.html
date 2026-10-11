@@ -55,7 +55,7 @@
     <header class="header">
         <nav>
             <div class="logo" data-toggle-button-label="{{ t "menu.title" }}">
-                <a aria-label="{{ t "menu.home_page" }}" href="{{ routePath (printf "/%s" .user.DefaultHomePage) }}">
+                <a aria-label="{{ t "menu.home_page" }}" href="{{ if and (eq .user.DefaultHomePage "unread") .savedUnreadURL }}{{ .savedUnreadURL }}{{ else }}{{ routePath (printf "/%s" .user.DefaultHomePage) }}{{ end }}">
                     Mini<span>flux</span>
                 </a>
                 {{ icon "chevron-down"}}

@@ -151,5 +151,10 @@ func (h *handler) oauth2Callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.HTMLRedirect(w, r, h.basePath+"/"+user.DefaultHomePage)
+	homeURL, err := defaultHomePageURL(h.store, h.basePath, user)
+	if err != nil {
+		response.HTMLServerError(w, r, err)
+		return
+	}
+	response.HTMLRedirect(w, r, homeURL)
 }

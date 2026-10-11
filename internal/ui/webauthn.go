@@ -263,7 +263,11 @@ func (h *handler) finishLogin(w http.ResponseWriter, r *http.Request) {
 
 	redirectURL := request.QueryStringParam(r, "redirect_url", "")
 	if !urllib.IsRelativePath(redirectURL) {
-		redirectURL = h.basePath + "/" + user.DefaultHomePage
+		redirectURL, err = defaultHomePageURL(h.store, h.basePath, user)
+		if err != nil {
+			response.JSONServerError(w, r, err)
+			return
+		}
 	}
 	response.JSON(w, r, map[string]string{"redirect": redirectURL})
 }

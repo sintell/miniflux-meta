@@ -11,6 +11,7 @@ import (
 	"miniflux.app/v2/internal/http/request"
 	"miniflux.app/v2/internal/http/response"
 	"miniflux.app/v2/internal/model"
+	"miniflux.app/v2/internal/storage"
 	"miniflux.app/v2/internal/ui/view"
 )
 
@@ -50,3 +51,16 @@ func (h *handler) withMetadata(next http.Handler) http.Handler {
 }
 
 func metaQuery(r *http.Request) model.MetaQuery { return view.RequestMetadata(r).Query }
+
+// Login routes are public and do not have metadata preferences in their context.
+func defaultHomePageURL(store *storage.Storage, basePath string, user *model.User) (string, error) {
+	path := basePath + "/" + user.DefaultHomePage
+	if user.DefaultHomePage != "unread" {
+		return path, nil
+	}
+	p, err := store.MetaPreferences(user.ID)
+	if err != nil {
+		return "", err
+	}
+	return view.MetaURL(path, p.QueryValues()), nil
+}

@@ -97,6 +97,11 @@ func (m *authProxyMiddleware) handle(next http.Handler) http.Handler {
 			return
 		}
 
-		response.HTMLRedirect(w, r, m.basePath+"/"+user.DefaultHomePage)
+		homeURL, err := defaultHomePageURL(m.store, m.basePath, user)
+		if err != nil {
+			response.HTMLServerError(w, r, err)
+			return
+		}
+		response.HTMLRedirect(w, r, homeURL)
 	})
 }

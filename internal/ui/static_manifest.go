@@ -10,6 +10,7 @@ import (
 	"miniflux.app/v2/internal/http/response"
 	"miniflux.app/v2/internal/locale"
 	"miniflux.app/v2/internal/model"
+	"miniflux.app/v2/internal/ui/view"
 )
 
 func (h *handler) showWebManifest(w http.ResponseWriter, r *http.Request) {
@@ -59,12 +60,19 @@ func (h *handler) showWebManifest(w http.ResponseWriter, r *http.Request) {
 	labelCategoriesMenu := "Categories"
 	labelSearchMenu := "Search"
 	labelSettingsMenu := "Settings"
+	unreadURL := h.routePath("/unread")
 	if request.IsAuthenticated(r) {
 		user, err := h.store.UserByID(request.UserID(r))
 		if err != nil {
 			response.JSONServerError(w, r, err)
 			return
 		}
+		preferences, err := h.store.MetaPreferences(user.ID)
+		if err != nil {
+			response.JSONServerError(w, r, err)
+			return
+		}
+		unreadURL = view.MetaURL(unreadURL, preferences.QueryValues())
 		displayMode = user.DisplayMode
 		printer := locale.NewPrinter(user.Language)
 		labelNewFeed = printer.Print("menu.add_feed")
@@ -100,7 +108,7 @@ func (h *handler) showWebManifest(w http.ResponseWriter, r *http.Request) {
 		},
 		Shortcuts: []webManifestShortcut{
 			{Name: labelNewFeed, URL: h.routePath("/subscribe"), Icons: []webManifestIcon{{Source: h.iconPath("add-feed-icon.png"), Sizes: "240x240", Type: "image/png"}}},
-			{Name: labelUnreadMenu, URL: h.routePath("/unread"), Icons: []webManifestIcon{{Source: h.iconPath("unread-icon.png"), Sizes: "240x240", Type: "image/png"}}},
+			{Name: labelUnreadMenu, URL: unreadURL, Icons: []webManifestIcon{{Source: h.iconPath("unread-icon.png"), Sizes: "240x240", Type: "image/png"}}},
 			{Name: labelStarredMenu, URL: h.routePath("/starred"), Icons: []webManifestIcon{{Source: h.iconPath("starred-icon.png"), Sizes: "240x240", Type: "image/png"}}},
 			{Name: labelHistoryMenu, URL: h.routePath("/history"), Icons: []webManifestIcon{{Source: h.iconPath("history-icon.png"), Sizes: "240x240", Type: "image/png"}}},
 			{Name: labelFeedsMenu, URL: h.routePath("/feeds"), Icons: []webManifestIcon{{Source: h.iconPath("feeds-icon.png"), Sizes: "240x240", Type: "image/png"}}},
